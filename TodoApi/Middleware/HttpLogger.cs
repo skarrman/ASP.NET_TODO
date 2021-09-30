@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace TodoApi.Middleware
@@ -10,17 +11,19 @@ namespace TodoApi.Middleware
     public class HttpLogger
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<HttpLogger> _logger;
 
-        public HttpLogger(RequestDelegate next)
+        public HttpLogger(RequestDelegate next, ILogger<HttpLogger> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
         {
             var request = await FormatRequest(context.Request);
 
-            Console.WriteLine("- Request:\n" + request);
+            _logger.LogInformation("- REQUEST:\n{}", request);
 
             var originalBodyStream = context.Response.Body;
 
@@ -32,7 +35,7 @@ namespace TodoApi.Middleware
 
             var response = await FormatResponse(context.Response);
 
-            Console.WriteLine("- Response:\n" + response + "\n");
+            _logger.LogInformation("- RESPONSE:\n{}\n", response);
 
             await responseBody.CopyToAsync(originalBodyStream);
         }
@@ -70,7 +73,7 @@ namespace TodoApi.Middleware
         {
             message.Body.Seek(0, SeekOrigin.Begin);
 
-            string body = await new StreamReader(message.Body).ReadToEndAsync();
+            var body = await new StreamReader(message.Body).ReadToEndAsync();
 
             message.Body.Seek(0, SeekOrigin.Begin);
 
