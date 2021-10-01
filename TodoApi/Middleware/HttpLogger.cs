@@ -57,7 +57,9 @@ namespace TodoApi.Middleware
 
         private static async Task<string> FormatResponse(HttpResponse response)
         {
-            var body = JsonConvert.DeserializeObject(await ReadBody(response)).ToString();
+            var json = JsonConvert.DeserializeObject(await ReadBody(response));
+
+            var body = json is null ? "" : json.ToString(); 
 
             var bodyString = string.IsNullOrEmpty(body) ? "" : $"\nBody:\n{body}";
 
