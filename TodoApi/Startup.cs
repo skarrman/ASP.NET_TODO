@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
 using Microsoft.OpenApi.Models;
 using TodoApi.Middleware;
-using TodoApi.Controllers;
 
 namespace TodoApi
 {
